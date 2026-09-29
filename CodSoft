@@ -1,0 +1,51 @@
+"""A friendly, rule-based command-line chatbot."""
+
+from __future__ import annotations
+
+import random
+import re
+
+
+INTENTS = [
+    ("greeting", re.compile(r"\b(hi|hello|hey|good morning|good afternoon)\b", re.I),
+     ["Hello! What would you like to talk about?", "Hi there! How can I help?"]),
+    ("identity", re.compile(r"\b(your name|who are you|what are you)\b", re.I),
+     ["I'm CodBot, a small rule-based chatbot built in Python."]),
+    ("wellbeing", re.compile(r"\b(how are you|how's it going)\b", re.I),
+     ["I'm doing well, thanks! What can I help you with?"]),
+    ("capabilities", re.compile(r"\b(help|what can you do|options)\b", re.I),
+     ["Try a greeting, ask my name, ask how I am, or say 'thank you'."]),
+    ("thanks", re.compile(r"\b(thanks|thank you|thx)\b", re.I),
+     ["You're welcome!", "Happy to help."]),
+    ("farewell", re.compile(r"\b(bye|goodbye|see you|quit|exit)\b", re.I),
+     ["Goodbye! Have a great day."]),
+]
+
+
+def respond(message: str) -> tuple[str, bool]:
+    """Return a response and whether the conversation should end."""
+    for intent, pattern, replies in INTENTS:
+        if pattern.search(message):
+            return random.choice(replies), intent == "farewell"
+    return "I'm not sure I understood. Try 'help' to see what I can answer.", False
+
+
+def main() -> None:
+    print("CodBot: Hello! Type 'help' for examples, or 'quit' to leave.")
+    while True:
+        try:
+            message = input("You: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nCodBot: Goodbye!")
+            break
+        if not message:
+            print("CodBot: Send a message when you're ready.")
+            continue
+        reply, should_exit = respond(message)
+        print(f"CodBot: {reply}")
+        if should_exit:
+            break
+
+
+if __name__ == "__main__":
+    main()
